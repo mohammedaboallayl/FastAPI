@@ -3,4 +3,4 @@ numpy
 uvicorn
 Requests
 python-multipart
-PIL
+pillow
