@@ -9,19 +9,23 @@ app=FastAPI()
 
 @app.post("/")
 async def detect(img:UploadFile):
-    lodedimg=Image.fromarray(np.array(Image.open(BytesIO(img.file.read()))).astype("uint8"))
+    lodedimg=Image.open(BytesIO(img.file.read()))
     rawbytes=BytesIO()
     lodedimg.save(rawbytes,"PNG")
     rawbytes.seek(0)
-    responce=render(rawbytes)
+    responce=render(rawbytes.read())
     print(responce)
     if responce["state"]:
         image=np.array(lodedimg)
-        faceimg=image[np.abs(responce["y2"]):np.abs(responce["y1"]),np.abs(responce["x2"]):np.abs(responce["x1"])]
-
+        faceimage=np.array(image[np.abs(responce["y2"]):np.abs(responce["y1"]),np.abs(responce["x1"]):np.abs(responce["x2"])])
+        rawbytes.seek(0)
         ganders=ganderquery(rawbytes.read())
         
-        age=agequery(faceimg.tobytes())
+        im=Image.fromarray(faceimage.astype("uint8"),)
+        rawbyte=BytesIO()
+        im.save(rawbyte,"PNG")
+        rawbyte.seek(0)
+        age=agequery(rawbyte.read())
         
         gander=getHighScore(ganders)
         myage=getHighScore(age)
